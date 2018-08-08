@@ -1,29 +1,15 @@
 #include <stdio.h>
-#include <string.h>
-#include <openssl/bio.h>
-#include <openssl/bn.h>
-#include <openssl/rand.h>
-#include <openssl/err.h>
+#include "BBS.h"
 
-#define LENGTH 512
-#define NUMARGS 3
-
-int main( int argc,  char * argv[]){
+void generateKey(char * randSeed,int length, unsigned char * key){
    
-   //Check for arguments
-   if( argc != NUMARGS){
-      printf("Incorrect number of arguments, expected two arguments.\n",stderr);
-      exit(0);
+   //If lenght of key is not even return nullptr
+   if( (length % 2) != 0){
+      return NULL;
    }
    
-   char * randSeed;
-   if( strcmp("0",argv[1]) == 0){
-      randSeed = "This is a random seed to generate large primes";
-   }
-   else{
-      randSeed = argv[1];
-   }
-
+   //Define length of key
+   int LENGTH = length/2;
 
    //Generate two prime numbers
    BIGNUM *primeP = BN_new();
@@ -41,14 +27,13 @@ int main( int argc,  char * argv[]){
    //Check primeQ is congruent 3 mod 4 and not equal to PrimeP
    BN_generate_prime_ex(primeQ,LENGTH,0,NULL,NULL,NULL);
    while( BN_mod_word(primeQ,four) != 3 && BN_cmp(primeP,primeQ) != 0){
-      BN_generate_prime_ex(primeQ,8,0,NULL,NULL,NULL);
+      BN_generate_prime_ex(primeQ,LENGTH,0,NULL,NULL,NULL);
    }
 
    //Create Blum integer
    BIGNUM * blumInt = BN_new();
    BN_mul(blumInt,primeP,primeQ,ctx);
 
-   
    //Create x, where gcd(x,blumInt) == 1
    BIGNUM * randX = BN_new();
    BIGNUM * rem = BN_new();
@@ -61,45 +46,32 @@ int main( int argc,  char * argv[]){
 
    //Compute bits
    BIGNUM * finalRandNum = BN_new();
-   BN_mod_mul(finalRandNum,randX,randX,blumInt,ctx);  //x0 = finalRandNum
+   BN_mod_mul(finalRandNum,randX,randX,blumInt,ctx); 
    BIGNUM * prev = BN_new();
-   BN_mod_mul(prev,finalRandNum,finalRandNum,blumInt,ctx);  //x0 = finalRandNum
+   BN_mod_mul(prev,finalRandNum,finalRandNum,blumInt,ctx);
    
    
    //Go through each bit
    int size = BN_num_bits(finalRandNum);
    int bit = BN_is_bit_set(prev,0);
-   for(int i=1; i < size ;i++){
+   for(int idx = 1; idx < size ;idx++){
       
       if(bit == 1){
-         BN_set_bit(finalRandNum,i);
+         BN_set_bit(finalRandNum,idx);
       }
       else{
-         BN_clear_bit(finalRandNum,i);
+         BN_clear_bit(finalRandNum,idx);
       }
 
       BN_mod_mul(prev,prev,prev,blumInt,ctx); 
-      bit = BN_is_bit_set(prev,i);
+      bit = BN_is_bit_set(prev,idx);
    }//End of for
    
-   int random = (int) BN_mod_word(finalRandNum,50);
-   BN_free(primeP);
-   BN_free(primeQ);
-  
-   return 0;
+
+   BN_bn2bin(finalRandNum, key);
+   printf("KEY: %s \n",key);
+
 
 }
-   /*
-   BN_set_bit(primeQ,3);
-   BIO * file = BIO_new(BIO_s_file());
-   if(file == NULL){
 
-   }
 
-   if(BIO_write_filename(file,"test43.txt") == 0){
-
-   }
-
-   BN_print(file, primeQ);
-   BIO_free(file);
-  */
