@@ -18,21 +18,8 @@ int main( int argc,  char * argv[]){
    else{
       randSeed = argv[1];
    }
-
-   int size = 1028; 
-   BIGNUM * randNum = generateKey(randSeed,size);
-   printf("Main: ");
-   //generateKey(randSeed,size,randNum);
-   printBN(randNum);
-   printf("\n");
-   unsigned char * randString = malloc(BN_num_bytes(randNum));
-   BN_bn2bin(randNum,randString);
-   printf("HERE: %s \n",randString);
-   BIGNUM * thing = BN_new();
-   thing = BN_bin2bn(randString,BN_num_bytes(randNum),thing);
-   printBN(thing);
-   printf("\n");
-  
+   
+   testPRNG();
    return 0;
 
 }

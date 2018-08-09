@@ -78,10 +78,49 @@ BIGNUM * generateKey(char * randSeed,int length){
    return finalRandNum;
 }
 
+int randNum(int start, int end){
+   
+   //Construct random string based on time
+   time_t currTime;
+   struct tm * info;
+   time( &currTime);
+   info = localtime(&currTime);
+   char * timeStr = asctime(info);
+   
+   //Get random number from BBS 
+   BIGNUM * randBN = generateKey(timeStr,512);
+   int randNum = BN_mod_word(randBN,end);
+   
+   //Mod in this format to get random number in range
+   int range = (end-start+1);
+   randNum = (randNum % range)+start;
+   BN_free(randBN);
+
+   return randNum;
+
+}
+
+void testPRNG(){
+   
+   long int end = 10000;
+   long int numbers[101];
+   for(long int i =0; i < end; i++){
+      int rand = randNum(0,100);
+      numbers[rand] +=1;
+   }
+
+   for(int j = 0; j < 101; j++){
+      float percent = numbers[j]/end; 
+      printf("%d: %f %ld \n",j,percent, numbers[j]);
+   }
+
+}
+
 void printBN(BIGNUM * number){
    
    BIO * out = BIO_new_fp(stdout,BIO_NOCLOSE);
    BN_print(out,number);
+   BIO_free(out);
 }
 
 
