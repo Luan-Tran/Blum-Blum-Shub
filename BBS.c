@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "BBS.h"
 
-void generateKey(char * randSeed,int length, unsigned char * key){
+BIGNUM * generateKey(char * randSeed,int length){
    
    //If lenght of key is not even return nullptr
    if( (length % 2) != 0){
@@ -67,11 +67,21 @@ void generateKey(char * randSeed,int length, unsigned char * key){
       bit = BN_is_bit_set(prev,idx);
    }//End of for
    
+   //Free memory
+   BN_free(primeP);
+   BN_free(primeQ);
+   BN_free(blumInt);
+   BN_free(randX);
+   BN_free(rem);
+   BN_free(prev);
 
-   BN_bn2bin(finalRandNum, key);
-   printf("KEY: %s \n",key);
+   return finalRandNum;
+}
 
-
+void printBN(BIGNUM * number){
+   
+   BIO * out = BIO_new_fp(stdout,BIO_NOCLOSE);
+   BN_print(out,number);
 }
 
 

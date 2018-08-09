@@ -1,9 +1,8 @@
 CC=gcc
 
-main:
-	$(CC) -o BBS BBS.o -lssl -lcrypto
+main: main.o BBS.o
+	$(CC) -o BBS main.o BBS.o -lssl -lcrypto
 
-BBS: BBS.h
 
 clean:
 	rm *.o BBS 
