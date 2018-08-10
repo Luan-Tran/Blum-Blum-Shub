@@ -1,3 +1,9 @@
+/*
+ * Author: Luan Tran
+ * Date: 8/6/18
+ * Description: This a header file for BBS.h
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <openssl/bio.h>
@@ -8,16 +14,17 @@
 #include <math.h>
 #include <time.h>
 
-//Generate a key 
+//Generate a key with certain length, return key as BIGNUM
 BIGNUM * generateKey(char * randSeed,int length);
 
-//Generate a random number from start to end, where start is inclusive
-//and end is exclusive
-int randNum(int start, int end);
+//Generate a random number from 0 to end, 0 inclusive, end exclusive
+int randNum(int end);
+
+//Test by generating 100,000 random numbers
+void testPRNG();
 
 //Print BIGNUM for testing
 void printBN(BIGNUM * number);
 
-//Simple test for PRNG
-void testPRNG();
+
 
