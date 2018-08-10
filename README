@@ -1,0 +1,5 @@
+# Blum-Blum-Shub
+
+This is a simple implementation of the Blum Blum Shub algorithm that was described in Bruce Schneier's book, Applied Cryptography.
+The main file was created to demonstrate the algorithm and generate keys that are printed to the console.
+The implementation of the algorithm is in BBS.c, with useful functions that allow the algorithm to be used in other files.
