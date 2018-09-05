@@ -1,5 +1,11 @@
 # Blum-Blum-Shub
 
-This is a simple implementation of the Blum Blum Shub algorithm that was described in Bruce Schneier's book, Applied Cryptography.
-The main file was created to demonstrate the algorithm and generate keys that are printed to the console.
-The implementation of the algorithm is in BBS.c, with useful functions that allow the algorithm to be used in other files.
+This is a simple implementation of the Blum Blum Shub algorithm that was described 
+in Bruce Schneier's book, Applied Cryptography.The main file takes in a file to 
+write too, the number of keys to generate, and whether testing should be done.
+
+Ex: Creates or overwrites listOfKeys.txt and writes 10 keys to file
+./BBS listOfKeys.txt 10 0
+
+Ex: Test pseudo random number generator, no keys will be written to file.
+./BBS listOfKeys.txt 10 1

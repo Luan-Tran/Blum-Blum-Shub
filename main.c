@@ -2,8 +2,9 @@
  * Author: Luan Tran
  * Date: 8/6/18
  * Description: Main function takes in arguments to create a certain number of
- * keys in hexadecimal. This function is mainly used to demonstrate the BBS
- * functions.
+ * keys in BIGNUM format. Keys are written to file, with each key seperated by
+ * newline char. User inputs filename, number of keys, and 0 for no testing and
+ * 1 for testing. Testing will not write any keys to file.
  *
  */
 #include "BBS.h"
@@ -12,13 +13,12 @@
 #define SIZE 1028
 
 void usage();
-int isNumeric();
 
 int main( int argc,  char * argv[]){
    
    //Check for arguments
    if( argc != NUMARGS){
-      printf("Incorrect number of arguments, expected three arguments.\n",stderr);
+      printf("[-] Incorrect number of arguments, expected three arguments.\n",stderr);
       usage();
       exit(0);
    }
@@ -29,45 +29,47 @@ int main( int argc,  char * argv[]){
    int test = strtol(argv[3],&end,10);
    
    if(numKeys == 0L || numKeys == 0){
-      fprintf(stderr,"Enter a positive number for second argument\n");
+      fprintf(stderr,"[-] Enter a positive number for second argument\n");
       usage();
-      exit(0);
+      exit(1);
    }
    else if(end == argv[3] || test > 1 || test < 0){
-      fprintf(stderr, "Enter either 0 or 1 for third argument\n");
+      fprintf(stderr, "[-] Enter either 0 or 1 for third argument\n");
       usage();
-      exit(0);
+      exit(1);
    }
    else if( test == 1){
       testPRNG();
       exit(0);
    }
 
-   //Create keys 
+   //Open file
+   FILE * file = fopen(argv[1],"w");
+   if( file == NULL){
+      fprintf(stderr,"Error opening file: %s\n",strerror(errno));
+      usage();
+      exit(1);
+   }
+
+
+   //Construct random string based on time
    char * randSeed;
-   if( strcmp("0",argv[1]) == 0){
-
-      //Construct random string based on time
-      time_t currTime;
-      struct tm * info;
-      time( &currTime);
-      info = localtime(&currTime);
-      randSeed = asctime(info);
-   }
-   else{
-      randSeed = argv[1];
-   }
-
-   //Array of keys
-   BIGNUM * arrKeys[numKeys];
-
+   time_t currTime;
+   struct tm * info;
+   time( &currTime);
+   info = localtime(&currTime);
+   randSeed = asctime(info);
+   
+   //Make Keys and print to file
    for(int i=0; i <+ numKeys; i++){
-      arrKeys[i] = generateKey(randSeed,SIZE);
-      printBN(arrKeys[i]);
-      BN_free(arrKeys[i]);
-      printf("\n");
+      BIGNUM * currKey = generateKey(randSeed,SIZE);
+      BN_print_fp(file, currKey);
+      fprintf(file,"\n");
+      BN_free(currKey);
+
    }
    
+   fclose(file);
 
    return 0;
 }
@@ -76,8 +78,7 @@ int main( int argc,  char * argv[]){
 void usage(){
 
    fprintf(stderr,"\nProgram takes in three commands\n");
-   fprintf(stderr,"-S a random string for entropy, if user enters 0,"\
-   "time will be used as random string\n");
+   fprintf(stderr,"-F the file to write too\n");
    fprintf(stderr, "-K the number of keys to generate\n");
    fprintf(stderr, "-T enter 0 for no testing, 1 for testing \n");
 
