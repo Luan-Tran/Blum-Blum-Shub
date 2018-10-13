@@ -49,45 +49,52 @@ BIGNUM * generateKey(char * randSeed,int length){
    BN_mul(blumInt,primeP,primeQ,ctx);
 
    //Create x, where gcd(x,blumInt) == 1
-   BIGNUM * randX = BN_new();
+   BIGNUM * seed = BN_new();
    BIGNUM * rem = BN_new();
-   BN_generate_prime_ex(randX,LENGTH,0,NULL,NULL,NULL);
-   BN_gcd(rem,randX,blumInt,ctx);
+   BN_generate_prime_ex(seed,length,0,NULL,NULL,NULL);
+   BN_gcd(rem,seed,blumInt,ctx);
    while( BN_is_one(rem) != 1){
-      BN_generate_prime_ex(randX,LENGTH,0,NULL,NULL,NULL);
-      BN_gcd(rem,randX,blumInt,ctx);
+      BN_generate_prime_ex(seed,length,0,NULL,NULL,NULL);
+      BN_gcd(rem,seed,blumInt,ctx);
    }
 
    //Compute bits
    BIGNUM * finalRandNum = BN_new();
-   BN_mod_mul(finalRandNum,randX,randX,blumInt,ctx); 
+   BN_generate_prime_ex(finalRandNum,length,0,NULL,NULL,NULL);
+
+   //Use temp to keep track of x_i and prev for x_{i-1}
    BIGNUM * prev = BN_new();
-   BN_mod_mul(prev,finalRandNum,finalRandNum,blumInt,ctx);
-   
+   BIGNUM * temp = BN_new();
+   BN_mod_mul(temp,seed,seed,blumInt,ctx);
+   BN_mod_mul(prev,seed,seed,blumInt,ctx);  //x_0 = x^2
    
    //Go through each bit
-   int size = BN_num_bits(finalRandNum);
    int bit = BN_is_bit_set(prev,0);
-   for(int idx = 1; idx < size ;idx++){
+   int size = BN_num_bits(finalRandNum);
+   for(int idx = 0; idx < size;idx++){
       
       if(bit == 1){
          BN_set_bit(finalRandNum,idx);
+         BN_set_bit(temp,idx);
       }
       else{
          BN_clear_bit(finalRandNum,idx);
+         BN_clear_bit(temp,idx);
       }
 
-      BN_mod_mul(prev,prev,prev,blumInt,ctx); 
-      bit = BN_is_bit_set(prev,idx);
+      BN_mod_mul(prev,temp,temp,blumInt,ctx); 
+      bit = BN_is_bit_set(prev,0);
    }//End of for
    
    //Free memory
    BN_free(primeP);
    BN_free(primeQ);
    BN_free(blumInt);
-   BN_free(randX);
+   BN_free(seed);
    BN_free(rem);
    BN_free(prev);
+   BN_free(temp);
+
 
    return finalRandNum;
 }
@@ -113,7 +120,7 @@ int randNum(int end){
 //Used for testing
 void testPRNG(){
    
-   int end = 10000;
+   int end = 1000;
    int numbers[100] = {0};
 
    for(long int i =0; i < end; i++){

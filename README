@@ -2,10 +2,11 @@
 
 This is a simple implementation of the Blum Blum Shub algorithm that was described 
 in Bruce Schneier's book, Applied Cryptography.The main file takes in a file to 
-write too, the number of keys to generate, the length of key, and whether testing should be done.
+write too, the number of keys to generate, and the length of key. To test the
+pseudo random number generator, run the executable with no inputs.
 
 Ex: Creates or overwrites listOfKeys.txt and writes 10 keys to file
-./BBS listOfKeys.txt 10 2048 0
+./BBS listOfKeys.txt 10 2048 
 
 Ex: Test pseudo random number generator, no keys will be written to file.
-./BBS listOfKeys.txt 10 2048 1
+./BBS

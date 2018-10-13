@@ -8,7 +8,6 @@
  *
  */
 #include "BBS.h"
-#define NUMARGS 5
 #define BYTE 8
 #define SIZE 1028
 
@@ -16,26 +15,28 @@ void usage();
 
 int main( int argc,  char * argv[]){
    
+   int testARG = 1;
+   int keyARG = 4;
    //Check for arguments
-   if( argc != NUMARGS){
-      printf("[-] Incorrect number of arguments, expected three arguments.\n",stderr);
+   if( argc != testARG && argc != keyARG ){
+      printf("[-] Incorrect number of arguments\n",stderr);
       usage();
       exit(0);
    }
    
+   if(argc == testARG){
+      printf("[+] Begin Testing: \n");
+      testPRNG();
+      exit(0);
+   }
+
    //Test if correct arguments were passed
    char * end;
    int lengthOfKey = strtol(argv[3],&end,10);
    int numKeys = strtol(argv[2],&end,10);
-   int test = strtol(argv[4],&end,10);
    
    if(numKeys == 0L || numKeys == 0){
       fprintf(stderr,"[-] Enter a positive number for second argument\n");
-      usage();
-      exit(1);
-   }
-   else if(end == argv[4] || test > 1 || test < 0){
-      fprintf(stderr, "[-] Enter either 0 or 1 for third argument\n");
       usage();
       exit(1);
    }
@@ -43,10 +44,6 @@ int main( int argc,  char * argv[]){
       fprintf(stderr, "[-] Enter a number between 128 and 2048 for key length\n");
       usage();
       exit(1);
-   }
-   else if( test == 1){
-      testPRNG();
-      exit(0);
    }
 
    //Open file
@@ -72,7 +69,6 @@ int main( int argc,  char * argv[]){
       BN_print_fp(file, currKey);
       fprintf(file,"\n");
       BN_free(currKey);
-
    }
    
    fclose(file);
@@ -83,10 +79,10 @@ int main( int argc,  char * argv[]){
 
 void usage(){
 
-   fprintf(stderr,"\nProgram takes in four commands\n");
+   fprintf(stderr,"\nProgram takes in three commands\n");
    fprintf(stderr,"-F the file to write too\n");
    fprintf(stderr, "-K the number of keys to generate\n");
-   fprintf(stderr, "-T enter 0 for no testing, 1 for testing \n");
+   fprintf(stderr, "-L the length of keys\n");
 
 }
 
